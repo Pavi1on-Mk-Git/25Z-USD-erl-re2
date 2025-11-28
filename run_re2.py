@@ -1,15 +1,19 @@
 import numpy as np
-import time 
+import time
 import random
 
-import gym, torch
+import gymnasium as gym
+import torch
 import argparse
 import pickle
 from core.operator_runner import OperatorRunner
 from parameters import Parameters
+import gymnasium_robotics
 
 
 import os
+
+gym.register_envs(gymnasium_robotics)
 
 cpu_num = 1
 os.environ ['OMP_NUM_THREADS'] = str(cpu_num)
@@ -92,7 +96,7 @@ parameters.write_params(stdout=True)
 
 # Seed
 os.environ['PYTHONHASHSEED']= str(parameters.seed)
-env.seed(parameters.seed)
+env.reset(seed = parameters.seed)
 torch.manual_seed(parameters.seed)
 np.random.seed(parameters.seed)
 random.seed(parameters.seed)

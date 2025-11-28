@@ -370,7 +370,7 @@ class Policy_Value_Network(nn.Module):
         # Output interface
         out_2 = self.w_out_2(out)
 
-        
+
         return out_1, out_2
 
     def Q1(self, input, param):
@@ -439,8 +439,8 @@ class TD3(object):
         self.state_embedding = shared_state_embedding(args)
         self.state_embedding_target = shared_state_embedding(args)
         self.state_embedding_target.load_state_dict(self.state_embedding.state_dict())
-      
-      
+
+
         self.old_state_embedding = shared_state_embedding(args)
         self.state_embedding_optimizer = torch.optim.Adam(self.state_embedding.parameters(), lr=1e-3)
 
@@ -453,7 +453,7 @@ class TD3(object):
         actor_loss_list =[]
         critic_loss_list =[]
         pre_loss_list = []
-        pv_loss_list = [0.0]
+        pv_loss_list = [np.array([0.0])]
         keep_c_loss = [0.0]
 
         for it in range(iterations):
@@ -464,7 +464,7 @@ class TD3(object):
             next_state = torch.FloatTensor(y).to(self.device)
             done = torch.FloatTensor(1 - d).to(self.device)
             reward = torch.FloatTensor(r).to(self.device)
-            
+
             if self.args.EA:
                 if self.args.use_all:
                     use_actors = all_actor
@@ -478,7 +478,7 @@ class TD3(object):
                     param = nn.utils.parameters_to_vector(list(actor.parameters())).data.cpu().numpy()
                     param = torch.FloatTensor(param).to(self.device)
                     param = param.repeat(len(state), 1)
-    
+
                     with torch.no_grad():
                         if self.args.OFF_TYPE == 1:
                             input = torch.cat([next_state,actor.forward(next_state,self.state_embedding)],-1)
@@ -487,15 +487,15 @@ class TD3(object):
                         next_Q1, next_Q2 = self.PVN_Target.forward(input ,param)
                         next_target_Q = torch.min(next_Q1,next_Q2)
                         target_Q = reward + (done * discount * next_target_Q).detach()
-    
+
                     if self.args.OFF_TYPE == 1:
                         input = torch.cat([state,action], -1)
                     else:
                         input = self.state_embedding.forward(state)
-    
+
                     current_Q1, current_Q2 = self.PVN.forward(input, param)
                     pv_loss += F.mse_loss(current_Q1, target_Q)+ F.mse_loss(current_Q2, target_Q)
-    
+
                 self.PVN_optimizer.zero_grad()
                 pv_loss.backward()
                 nn.utils.clip_grad_norm_(self.PVN.parameters(), 10)
@@ -514,13 +514,13 @@ class TD3(object):
             target_Q1, target_Q2 = self.critic_target(next_state, next_action)
             target_Q = torch.min(target_Q1, target_Q2)
             target_Q = reward + (done * discount * target_Q).detach()
-            
+
             # Get current Q estimates
             current_Q1, current_Q2 = self.critic(state, action)
 
             # Compute critic loss
             critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(current_Q2, target_Q)
- 
+
             # Optimize the critic
             self.critic_optimizer.zero_grad()
             critic_loss.backward()
@@ -536,14 +536,17 @@ class TD3(object):
                 actor_loss = -self.critic.Q1(state, self.actor.select_action_from_z(s_z)).mean()
                 # Optimize the actor
                 self.actor_optimizer.zero_grad()
-                actor_loss.backward(retain_graph=True)
+                actor_loss.backward()
                 nn.utils.clip_grad_norm_(self.actor.parameters(), 10)
                 self.actor_optimizer.step()
+
+                s_z= self.state_embedding.forward(state)
+                actor_loss = -self.critic.Q1(state, self.actor.select_action_from_z(s_z)).mean()
 
                 if self.args.EA:
                     index = random.sample(list(range(self.args.pop_size+1)), self.args.K)
                     new_actor_loss = 0.0
-    
+
                     if evo_times > 0 :
                         for ind in index :
                             actor = all_actor[ind]
@@ -554,7 +557,7 @@ class TD3(object):
                                 input = torch.cat([state,actor.forward(state,self.state_embedding)], -1)
                             else:
                                 input = self.state_embedding.forward(state)
-    
+
                             new_actor_loss += -self.PVN.Q1(input,param).mean()
 
 
@@ -567,10 +570,10 @@ class TD3(object):
                 nn.utils.clip_grad_norm_(self.state_embedding.parameters(), 10)
                 self.state_embedding_optimizer.step()
                 # Update the frozen target models
-                
+
                 for param, target_param in zip(self.state_embedding.parameters(), self.state_embedding_target.parameters()):
                     target_param.data.copy_(tau * param.data + (1 - tau) * target_param.data)
-                
+
                 for param, target_param in zip(self.critic.parameters(), self.critic_target.parameters()):
                     target_param.data.copy_(tau * param.data + (1 - tau) * target_param.data)
 

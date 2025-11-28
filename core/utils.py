@@ -3,7 +3,7 @@ import scipy.signal
 # from mpi_tools import mpi_statistics_scalar
 
 
-# Code based on: 
+# Code based on:
 # https://github.com/openai/baselines/blob/master/baselines/deepq/replay_buffer.py
 
 # Expects tuples of (state, next_state, action, reward, done)
@@ -24,18 +24,18 @@ class ReplayBuffer(object):
         ind = np.random.randint(0, len(self.storage), size=batch_size)
         x, y, u, r, d,nu, parameters =[], [],[], [], [], [], []
        # print(len(self.storage), "   ", ind)
-        
+
        # print(self.storage[ind[0]])
-        
+
         for i in ind:
             X, Y, U, R, D, NU, P = self.storage[i]
-            x.append(np.array(X, copy=False))
-            y.append(np.array(Y, copy=False))
-            u.append(np.array(U, copy=False))
-            r.append(np.array(R, copy=False))
-            d.append(np.array(D, copy=False))
-            nu.append(np.array(NU, copy=False))
-            parameters.append(np.array(P, copy=False))
+            x.append(np.asarray(X))
+            y.append(np.asarray(Y))
+            u.append(np.asarray(U))
+            r.append(np.asarray(R))
+            d.append(np.asarray(D))
+            nu.append(np.asarray(NU))
+            parameters.append(np.asarray(P))
         return np.array(x), np.array(y), np.array(u), np.array(r).reshape(-1, 1), np.array(d).reshape(-1, 1),np.array(parameters),np.array(nu)
 
 def combined_shape(length, shape=None):
@@ -223,13 +223,13 @@ def discount(x, gamma):
     """ Calculate discounted forward sum of a sequence at each point """
     """
     magic from rllab for computing discounted cumulative sums of vectors.
-    input: 
-        vector x, 
-        [x0, 
-         x1, 
+    input:
+        vector x,
+        [x0,
+         x1,
          x2]
     output:
-        [x0 + discount * x1 + discount^2 * x2,  
+        [x0 + discount * x1 + discount^2 * x2,
          x1 + discount * x2,
          x2]
     """

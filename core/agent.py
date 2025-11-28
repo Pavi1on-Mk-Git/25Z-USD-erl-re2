@@ -63,7 +63,7 @@ class Agent:
         total_reward = 0.0
         total_error = 0.0
         policy_params = torch.nn.utils.parameters_to_vector(list(agent.actor.parameters())).data.cpu().numpy().reshape([-1])
-        state = self.env.reset()
+        state = self.env.reset()[0]
         done = False
 
         state_list = []
@@ -82,18 +82,19 @@ class Agent:
                 if rl_agent_collect_data:
                     self.rl_agent_frames +=1
             if self.args.render and is_render: self.env.render()
-            
+
             if is_random:
                 action = self.env.action_space.sample()
             else :
                 action = agent.actor.select_action(np.array(state),state_embedding_net)
                 if is_action_noise:
-                    
+
                     action = (action + np.random.normal(0, 0.1, size=self.args.action_dim)).clip(-1.0, 1.0)
             all_state.append(np.array(state))
             all_action.append(np.array(action))
             # Simulate one step in environment
-            next_state, reward, done, info = self.env.step(action.flatten())
+            next_state, reward, terminated, truncated, info = self.env.step(action.flatten())
+            done = terminated or truncated
             done_bool = 0 if episode_timesteps + 1 == 1000 else float(done)
             total_reward += reward
             n_step_discount_reward += math.pow(self.args.gamma,episode_timesteps)*reward
@@ -195,7 +196,7 @@ class Agent:
     def train(self):
         self.gen_frames = 0
         self.iterations += 1
- 
+
         # ========================== EVOLUTION  ==========================
         # Evaluate genomes/individuals
         real_rewards = np.zeros(len(self.pop))
@@ -241,7 +242,7 @@ class Agent:
         champion = self.pop[np.argmax(all_fitness)]
 
         test_score = 0
-        
+
         if self.args.EA and self.rl_agent_frames>=self.args.init_steps:
             for eval in range(10):
                 episode = self.evaluate(champion, self.rl_agent.state_embedding, is_render=True, is_action_noise=False, store_transition=False)
@@ -269,7 +270,7 @@ class Agent:
                 losses, _, add_rewards = self.train_ddpg(self.evo_times,all_fitness, state_list_list,reward_list_list,policy_parms_list_list,action_list_list)
             else :
                 losses = {'bcs_loss': 0.0, 'pgs_loss': 0.0 ,"current_q":0.0, "target_q":0.0, "pv_loss":0.0, "pre_loss":0.0}
-                add_rewards = np.zeros(len(self.pop)) 
+                add_rewards = np.zeros(len(self.pop))
         else :
             losses = {'bcs_loss': 0.0, 'pgs_loss': 0.0 ,"current_q":0.0, "target_q":0.0,"pv_loss":0.0, "pre_loss":0.0}
 
@@ -279,13 +280,13 @@ class Agent:
 
         # Validation test for RL agent
         testr = 0
-        
+
         if self.args.RL:
             for eval in range(10):
                 ddpg_stats = self.evaluate(self.rl_agent, self.rl_agent.state_embedding,store_transition=False, is_action_noise=False)
                 testr += ddpg_stats['reward']
             testr /= 10.0
-  
+
         #Sync RL Agent to NE every few steps
         if self.args.EA and self.args.RL and  self.rl_agent_frames>=self.args.init_steps:
            if self.iterations % self.args.rl_to_ea_synch_period == 0:

@@ -3,7 +3,7 @@ import torch
 import os
 import wandb
 os.environ["WANDB_API_KEY"] = ""
-os.environ["WANDB_MODE"] = ""
+os.environ["WANDB_MODE"] = "disabled"
 class Parameters:
     def __init__(self, cla, init=True):
         if not init:
@@ -29,7 +29,7 @@ class Parameters:
             self.rl_to_ea_synch_period = 1
         else:
             self.rl_to_ea_synch_period = 10
-        
+
         # Overwrite sync from command line if value is passed
         if cla.sync_period is not None:
             self.rl_to_ea_synch_period = cla.sync_period
@@ -97,14 +97,14 @@ class Parameters:
         self.action_dim = None  # To be initialised externally
         self.random_choose = cla.random_choose
         self.EA = cla.EA
-        self.RL = cla.RL 
-        self.K = cla.K 
+        self.RL = cla.RL
+        self.K = cla.K
         self.state_alpha = cla.state_alpha
         self.detach_z = cla.detach_z
         self.actor_alpha = cla.actor_alpha
         self.TD3_noise = cla.TD3_noise
         self.pr = cla.pr
-        self.use_all = cla.use_all 
+        self.use_all = cla.use_all
         self.OFF_TYPE = cla.OFF_TYPE
         self.prob_reset_and_sup = cla.prob_reset_and_sup
         self.frac = cla.frac

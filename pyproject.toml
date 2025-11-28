@@ -1,0 +1,33 @@
+[project]
+name = "25Z-USD-erl-re2"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "Paweł Kochański", email = "pawel.kochanski3.stud@pw.edu.pl"},
+    {name = "Jakub Proboszcz", email = "jakub.proboszcz.stud@pw.edu.pl"}
+]
+dependencies = ["numpy>=2.3.5", "torch>=2.6.0", "wandb>=0.23.0", "fastrand>=3.0.7", "scipy>=1.16.3", "gymnasium-robotics[mujoco_py]>=1.4.1", "gymnasium>=0.29.1"]
+requires-python = "==3.12.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
+
+[tool.pdm.resolution.overrides]
+gymnasium = "<1.0.0"
+torch = ">=2.4.0"
+mujoco = "<=3.2.0"
+
+[[tool.pdm.source]]
+name = "private"
+url = "https://download.pytorch.org/whl/cu124"
+include_packages = ["torch", "torchvision", "torchaudio", "xformers"]
+exclude_packages = ["*"]
+
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "-e file:///${PROJECT_ROOT}/humanoid-bench#egg=humanoid-bench",
+]
