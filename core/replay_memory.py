@@ -2,17 +2,16 @@ import random
 import torch
 import numpy as np
 from collections import namedtuple
-from core import mod_utils as utils
 
 # Taken and adapted from
 # https://github.com/pytorch/tutorials/blob/master/Reinforcement%20(Q-)Learning%20with%20PyTorch.ipynb
 
 Transition = namedtuple(
-    'Transition', ('state', 'action', 'next_state', 'reward', 'done'))
+    "Transition", ("state", "action", "next_state", "reward", "done")
+)
 
 
 class ReplayMemory(object):
-
     def __init__(self, capacity, device):
         self.device = device
         self.capacity = capacity
@@ -48,13 +47,19 @@ class ReplayMemory(object):
         :return: a list with the latest elements
         """
         if self.capacity < latest:
-            latest_trans = self.memory[self.position:].copy() + self.memory[:self.position].copy()
+            latest_trans = (
+                self.memory[self.position :].copy()
+                + self.memory[: self.position].copy()
+            )
         elif len(self.memory) < self.capacity:
             latest_trans = self.memory[-latest:].copy()
         elif self.position >= latest:
-            latest_trans = self.memory[:self.position][-latest:].copy()
+            latest_trans = self.memory[: self.position][-latest:].copy()
         else:
-            latest_trans = self.memory[-latest+self.position:].copy() + self.memory[:self.position].copy()
+            latest_trans = (
+                self.memory[-latest + self.position :].copy()
+                + self.memory[: self.position].copy()
+            )
         return latest_trans
 
     def add_latest_from(self, other, latest):
@@ -114,10 +119,13 @@ class PrioritizedReplayMemory(object):
         self.device = device
 
     def beta_by_frame(self, frame_idx):
-        return min(1.0, self.beta_start + frame_idx * (1.0 - self.beta_start) / self.beta_frames)
+        return min(
+            1.0,
+            self.beta_start + frame_idx * (1.0 - self.beta_start) / self.beta_frames,
+        )
 
     def push(self, transition: Transition):
-        max_prio = self.priorities.max() if self.buffer else 1.0 ** self.prob_alpha
+        max_prio = self.priorities.max() if self.buffer else 1.0**self.prob_alpha
 
         if len(self.buffer) < self.capacity:
             self.buffer.append(transition)
@@ -132,7 +140,7 @@ class PrioritizedReplayMemory(object):
         if len(self.buffer) == self.capacity:
             prios = self.priorities
         else:
-            prios = self.priorities[:self.pos]
+            prios = self.priorities[: self.pos]
 
         total = len(self.buffer)
 
@@ -160,4 +168,3 @@ class PrioritizedReplayMemory(object):
 
     def __len__(self):
         return len(self.buffer)
-

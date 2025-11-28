@@ -6,6 +6,7 @@ import scipy.signal
 # Code based on:
 # https://github.com/openai/baselines/blob/master/baselines/deepq/replay_buffer.py
 
+
 # Expects tuples of (state, next_state, action, reward, done)
 class ReplayBuffer(object):
     def __init__(self, max_size=1e6):
@@ -22,10 +23,10 @@ class ReplayBuffer(object):
 
     def sample(self, batch_size):
         ind = np.random.randint(0, len(self.storage), size=batch_size)
-        x, y, u, r, d,nu, parameters =[], [],[], [], [], [], []
-       # print(len(self.storage), "   ", ind)
+        x, y, u, r, d, nu, parameters = [], [], [], [], [], [], []
+        # print(len(self.storage), "   ", ind)
 
-       # print(self.storage[ind[0]])
+        # print(self.storage[ind[0]])
 
         for i in ind:
             X, Y, U, R, D, NU, P = self.storage[i]
@@ -36,7 +37,16 @@ class ReplayBuffer(object):
             d.append(np.asarray(D))
             nu.append(np.asarray(NU))
             parameters.append(np.asarray(P))
-        return np.array(x), np.array(y), np.array(u), np.array(r).reshape(-1, 1), np.array(d).reshape(-1, 1),np.array(parameters),np.array(nu)
+        return (
+            np.array(x),
+            np.array(y),
+            np.array(u),
+            np.array(r).reshape(-1, 1),
+            np.array(d).reshape(-1, 1),
+            np.array(parameters),
+            np.array(nu),
+        )
+
 
 def combined_shape(length, shape=None):
     if shape is None:
@@ -105,8 +115,7 @@ class ReplayBufferPPO(object):
         adv_mean = np.mean(self.adv_buf)
         adv_std = np.std(self.adv_buf)
         self.adv_buf = (self.adv_buf - adv_mean) / adv_std
-        return [self.obs_buf, self.act_buf, self.adv_buf,
-                self.ret_buf, self.logp_buf]
+        return [self.obs_buf, self.act_buf, self.adv_buf, self.ret_buf, self.logp_buf]
 
 
 class ReplayBuffer_MC(object):
@@ -190,9 +199,16 @@ class ReplayBuffer_VDFP(object):
         return np.array(u).reshape(-1, 1), np.array(x)
 
 
-def store_experience(replay_buffer, trajectory, s_dim, a_dim,
-                     sequence_length, min_sequence_length=0, is_padding=False, gamma=0.99,
-                     ):
+def store_experience(
+    replay_buffer,
+    trajectory,
+    s_dim,
+    a_dim,
+    sequence_length,
+    min_sequence_length=0,
+    is_padding=False,
+    gamma=0.99,
+):
     s_traj, a_traj, r_traj = trajectory
 
     # for the convenience of manipulation
@@ -206,21 +222,21 @@ def store_experience(replay_buffer, trajectory, s_dim, a_dim,
     for i in range(len(s_traj) - min_sequence_length):
         tmp_s = arr_s_traj[i]
         tmp_a = arr_a_traj[i]
-        tmp_soff = arr_s_traj[i:i + sequence_length]
-        tmp_aoff = arr_a_traj[i:i + sequence_length]
+        tmp_soff = arr_s_traj[i : i + sequence_length]
+        tmp_aoff = arr_a_traj[i : i + sequence_length]
         tmp_saoff = np.concatenate([tmp_soff, tmp_aoff], axis=1)
 
         tmp_saoff_padded = np.concatenate([tmp_saoff, zero_pads], axis=0)
         tmp_saoff_padded_clip = tmp_saoff_padded[:sequence_length, :]
 
-        tmp_roff = arr_r_traj[i:i + sequence_length]
+        tmp_roff = arr_r_traj[i : i + sequence_length]
         tmp_u = np.matmul(tmp_roff, np.power(gamma, [j for j in range(len(tmp_roff))]))
 
         replay_buffer.add((tmp_s, tmp_a, tmp_u, tmp_saoff_padded_clip))
 
 
 def discount(x, gamma):
-    """ Calculate discounted forward sum of a sequence at each point """
+    """Calculate discounted forward sum of a sequence at each point"""
     """
     magic from rllab for computing discounted cumulative sums of vectors.
     input:
@@ -238,9 +254,9 @@ def discount(x, gamma):
 
 
 class Scaler(object):
-    """ Generate scale and offset based on running mean and stddev along axis=0
-        offset = running mean
-        scale = 1 / (stddev + 0.1) / 3 (i.e. 3x stddev = +/- 1.0)
+    """Generate scale and offset based on running mean and stddev along axis=0
+    offset = running mean
+    scale = 1 / (stddev + 0.1) / 3 (i.e. 3x stddev = +/- 1.0)
     """
 
     def __init__(self, obs_dim):
@@ -255,7 +271,7 @@ class Scaler(object):
         self.first_pass = True
 
     def update(self, x):
-        """ Update running mean and variance (this is an exact method)
+        """Update running mean and variance (this is an exact method)
         Args:
             x: NumPy array, shape = (N, obs_dim)
         see: https://stats.stackexchange.com/questions/43159/how-to-calculate-pooled-
@@ -272,13 +288,14 @@ class Scaler(object):
             new_data_mean = np.mean(x, axis=0)
             new_data_mean_sq = np.square(new_data_mean)
             new_means = ((self.means * self.m) + (new_data_mean * n)) / (self.m + n)
-            self.vars = (((self.m * (self.vars + np.square(self.means))) +
-                          (n * (new_data_var + new_data_mean_sq))) / (self.m + n) -
-                         np.square(new_means))
+            self.vars = (
+                (self.m * (self.vars + np.square(self.means)))
+                + (n * (new_data_var + new_data_mean_sq))
+            ) / (self.m + n) - np.square(new_means)
             self.vars = np.maximum(0.0, self.vars)  # occasionally goes negative, clip
             self.means = new_means
             self.m += n
 
     def get(self):
-        """ returns 2-tuple: (scale, offset) """
-        return 1/(np.sqrt(self.vars) + 0.1)/3, self.means
+        """returns 2-tuple: (scale, offset)"""
+        return 1 / (np.sqrt(self.vars) + 0.1) / 3, self.means

@@ -12,12 +12,12 @@ class OperatorRunner:
         self.args = args
 
     def load_genetic_agent(self, source, model):
-        actor_path = os.path.join(source, 'evo_net_actor_{}.pkl'.format(model))
-        buffer_path = os.path.join(source, 'champion_buffer_{}.pkl'.format(model))
+        actor_path = os.path.join(source, "evo_net_actor_{}.pkl".format(model))
+        buffer_path = os.path.join(source, "champion_buffer_{}.pkl".format(model))
 
         agent = ddpg.GeneticAgent(self.args)
         agent.actor.load_state_dict(torch.load(actor_path))
-        with open(buffer_path, 'rb') as file:
+        with open(buffer_path, "rb") as file:
             agent.buffer = pickle.load(file)
 
         return agent
@@ -46,7 +46,7 @@ class OperatorRunner:
         return np.mean(results), np.array(states)
 
     def test_crossover(self):
-        source_dir = 'exp/cheetah_sm0.1_distil_save_20/models/'
+        source_dir = "exp/cheetah_sm0.1_distil_save_20/models/"
         models = [1400, 1600, 1800, 2200]
 
         parent1 = []
@@ -57,9 +57,15 @@ class OperatorRunner:
         for i, model1 in enumerate(models):
             for j, model2 in enumerate(models):
                 if j > i:
-                    print("========== Crossover between {} and {} ==============".format(model1, model2))
+                    print(
+                        "========== Crossover between {} and {} ==============".format(
+                            model1, model2
+                        )
+                    )
                     critic = ddpg.Critic(self.args)
-                    critic_path = os.path.join(source_dir, 'evo_net_critic_{}.pkl'.format(model2))
+                    critic_path = os.path.join(
+                        source_dir, "evo_net_critic_{}.pkl".format(model2)
+                    )
                     critic.load_state_dict(torch.load(critic_path))
 
                     agent1 = self.load_genetic_agent(source_dir, model1)
@@ -95,12 +101,22 @@ class OperatorRunner:
                     print(distil_cro[-1])
                     print()
 
-        save_file = 'visualise/crossover'
-        np.savez(save_file, p1=parent1, p2=parent2, nc=normal_cro, dc=distil_cro, p1s=p1s, p2s=p2s, ncs=ncs, dcs=dcs)
+        save_file = "visualise/crossover"
+        np.savez(
+            save_file,
+            p1=parent1,
+            p2=parent2,
+            nc=normal_cro,
+            dc=distil_cro,
+            p1s=p1s,
+            p2s=p2s,
+            ncs=ncs,
+            dcs=dcs,
+        )
 
     def test_mutation(self):
         models = [800, 1400, 1600, 1800, 2200]
-        source_dir = 'exp/cheetah_sm0.1_distil_save_20/models/'
+        source_dir = "exp/cheetah_sm0.1_distil_save_20/models/"
 
         pr, nmr, smr = [], [], []
         ps, nms, sms = [], [], []
@@ -145,9 +161,19 @@ class OperatorRunner:
             ablr.append(sm_reward)
             abls.append(sm_states)
 
-        save_file = 'visualise/mutation'
-        np.savez(save_file, pr=pr, nmr=nmr, smr=smr, ps=ps, nms=nms, sms=sms, ablr=ablr, abls=abls,
-                 abl_mag=ablation_mag)
+        save_file = "visualise/mutation"
+        np.savez(
+            save_file,
+            pr=pr,
+            nmr=nmr,
+            smr=smr,
+            ps=ps,
+            nms=nms,
+            sms=sms,
+            ablr=ablr,
+            abls=abls,
+            abl_mag=ablation_mag,
+        )
 
     def run(self):
         self.test_crossover()
