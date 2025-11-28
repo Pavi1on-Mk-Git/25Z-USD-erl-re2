@@ -2,8 +2,11 @@ import pprint
 import torch
 import os
 import wandb
+
 os.environ["WANDB_API_KEY"] = ""
 os.environ["WANDB_MODE"] = "disabled"
+
+
 class Parameters:
     def __init__(self, cla, init=True):
         if not init:
@@ -12,9 +15,9 @@ class Parameters:
 
         # Set the device to run on CUDA or CPU
         if not cla.disable_cuda and torch.cuda.is_available():
-            self.device = torch.device('cuda')
+            self.device = torch.device("cuda")
         else:
-            self.device = torch.device('cpu')
+            self.device = torch.device("cpu")
 
         # Render episodes
         self.render = cla.render
@@ -25,7 +28,13 @@ class Parameters:
         self.num_frames = 1000000
 
         # Synchronization
-        if cla.env == 'HalfCheetah-v2' or cla.env == 'Hopper-v2' or cla.env == 'Ant-v2' or cla.env == 'Walker2d-v2' or cla.env == "Humanoid-v2":
+        if (
+            cla.env == "HalfCheetah-v2"
+            or cla.env == "Hopper-v2"
+            or cla.env == "Ant-v2"
+            or cla.env == "Walker2d-v2"
+            or cla.env == "Humanoid-v2"
+        ):
             self.rl_to_ea_synch_period = 1
         else:
             self.rl_to_ea_synch_period = 10
@@ -112,9 +121,46 @@ class Parameters:
         self.theta = cla.theta
         self.time_steps = cla.time_steps
         self.init_steps = 10000
-        self.name = "Steps_"+str(self.time_steps)+"_theta_"+str(self.theta)+ "_eval_"+str(self.num_evals)+"_rs_prob_"+ str(self.prob_reset_and_sup)+"_frac_p_"+str(self.frac)+"_our_M_"+str(self.OFF_TYPE)+"_" + str(self.elite_fraction) +"_"+ str(self.rl_to_ea_synch_period) +"_"+ str(self.pop_size) + "_"+str(self.EA_actor_alpha) + "_"+str(self.pr)+"_noise_"+str(self.TD3_noise)+"_Pavn_detach_"+str(self.detach_z)+"_"+str(self.actor_alpha)+ "_actorloss_MI_sa_s_"+ str(self.state_alpha) + "_random_K_"+ str(self.K)+ "_"+str(cla.env) +  "_"+  str(self.tau)
+        self.name = (
+            "Steps_"
+            + str(self.time_steps)
+            + "_theta_"
+            + str(self.theta)
+            + "_eval_"
+            + str(self.num_evals)
+            + "_rs_prob_"
+            + str(self.prob_reset_and_sup)
+            + "_frac_p_"
+            + str(self.frac)
+            + "_our_M_"
+            + str(self.OFF_TYPE)
+            + "_"
+            + str(self.elite_fraction)
+            + "_"
+            + str(self.rl_to_ea_synch_period)
+            + "_"
+            + str(self.pop_size)
+            + "_"
+            + str(self.EA_actor_alpha)
+            + "_"
+            + str(self.pr)
+            + "_noise_"
+            + str(self.TD3_noise)
+            + "_Pavn_detach_"
+            + str(self.detach_z)
+            + "_"
+            + str(self.actor_alpha)
+            + "_actorloss_MI_sa_s_"
+            + str(self.state_alpha)
+            + "_random_K_"
+            + str(self.K)
+            + "_"
+            + str(cla.env)
+            + "_"
+            + str(self.tau)
+        )
 
-        self.wandb = wandb.init(project="TSR",name=self.name)
+        self.wandb = wandb.init(project="TSR", name=self.name)
 
         self.wandb.config.rl_to_ea_synch_period = self.rl_to_ea_synch_period
         self.wandb.config.env = cla.env
@@ -128,7 +174,7 @@ class Parameters:
         self.wandb.config.distil = self.distil
         self.wandb.config.proximal_mut = self.proximal_mut
 
-        self.save_foldername = cla.logdir + "/"+self.name
+        self.save_foldername = cla.logdir + "/" + self.name
         if not os.path.exists(self.save_foldername):
             os.makedirs(self.save_foldername)
 
@@ -138,5 +184,5 @@ class Parameters:
         if stdout:
             print(params)
 
-        with open(os.path.join(self.save_foldername, 'info.txt'), 'a') as f:
+        with open(os.path.join(self.save_foldername, "info.txt"), "a") as f:
             f.write(params)
