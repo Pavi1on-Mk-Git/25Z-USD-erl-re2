@@ -1,0 +1,11 @@
+__pycache__
+logs
+.pdm-python
+.dockerignore
+.git
+.gitignore
+.gitmodules
+.venv
+.vscode
+README.md
+dockerfile
