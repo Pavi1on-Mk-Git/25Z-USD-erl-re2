@@ -1,12 +1,14 @@
+import random
+
+import numpy as np
 import torch
 import torch.nn as nn
-from torch.optim import Adam
 from torch.nn import functional as F
-from parameters import Parameters
+from torch.optim import Adam
+
 from core import replay_memory
 from core.mod_utils import is_lnorm_key
-import numpy as np
-import random
+from parameters import Parameters
 
 
 def soft_update(target, source, tau):
@@ -89,12 +91,12 @@ class shared_state_embedding(nn.Module):
         # Construct Hidden Layer 1
         self.w_l1 = nn.Linear(args.state_dim, l1)
         if self.args.use_ln:
-            self.lnorm1 = LayerNorm(l1)
+            self.lnorm1 = nn.LayerNorm(l1, eps=1e-6)
 
         # Hidden Layer 2
         self.w_l2 = nn.Linear(l1, l2)
         if self.args.use_ln:
-            self.lnorm2 = LayerNorm(l2)
+            self.lnorm2 = nn.LayerNorm(l2, eps=1e-6)
         # Init
         self.to(self.args.device)
 
@@ -212,8 +214,8 @@ class Critic(nn.Module):
 
         self.w_l2 = nn.Linear(l1, l2)
         if self.args.use_ln:
-            self.lnorm1 = LayerNorm(l1)
-            self.lnorm2 = LayerNorm(l2)
+            self.lnorm1 = nn.LayerNorm(l1, eps=1e-6)
+            self.lnorm2 = nn.LayerNorm(l2, eps=1e-6)
 
         # Out
         self.w_out = nn.Linear(l3, 1)
@@ -224,8 +226,8 @@ class Critic(nn.Module):
         # Hidden Layer 2
         self.w_l4 = nn.Linear(l1, l2)
         if self.args.use_ln:
-            self.lnorm3 = LayerNorm(l1)
-            self.lnorm4 = LayerNorm(l2)
+            self.lnorm3 = nn.LayerNorm(l1, eps=1e-6)
+            self.lnorm4 = nn.LayerNorm(l2, eps=1e-6)
 
         # Out
         self.w_out_2 = nn.Linear(l3, 1)
@@ -299,10 +301,10 @@ class Policy_Value_Network(nn.Module):
         # Construct input interface (Hidden Layer 1)
 
         if self.args.use_ln:
-            self.lnorm1 = LayerNorm(l1)
-            self.lnorm2 = LayerNorm(l2)
-            self.lnorm3 = LayerNorm(l1)
-            self.lnorm4 = LayerNorm(l2)
+            self.lnorm1 = nn.LayerNorm(l1, eps=1e-6)
+            self.lnorm2 = nn.LayerNorm(l2, eps=1e-6)
+            self.lnorm3 = nn.LayerNorm(l1, eps=1e-6)
+            self.lnorm4 = nn.LayerNorm(l2, eps=1e-6)
         self.policy_w_l1 = nn.Linear(self.args.ls + 1, self.args.pr)
         self.policy_w_l2 = nn.Linear(self.args.pr, self.args.pr)
         self.policy_w_l3 = nn.Linear(self.args.pr, self.args.pr)
