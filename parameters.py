@@ -1,10 +1,6 @@
 import pprint
 import torch
 import os
-import wandb
-
-os.environ["WANDB_API_KEY"] = ""
-os.environ["WANDB_MODE"] = "disabled"
 
 
 class Parameters:
@@ -159,20 +155,6 @@ class Parameters:
             + "_"
             + str(self.tau)
         )
-
-        self.wandb = wandb.init(project="TSR", name=self.name)
-
-        self.wandb.config.rl_to_ea_synch_period = self.rl_to_ea_synch_period
-        self.wandb.config.env = cla.env
-        self.wandb.config.tau = self.tau
-
-        self.wandb.config.num_evals = self.num_evals
-        self.wandb.config.elite_fraction = self.elite_fraction
-        self.wandb.config.crossover_prob = self.crossover_prob
-        self.wandb.config.mutation_prob = self.mutation_prob
-        self.wandb.config.mutation_batch_size = self.mutation_batch_size
-        self.wandb.config.distil = self.distil
-        self.wandb.config.proximal_mut = self.proximal_mut
 
         self.save_foldername = cla.logdir + "/" + self.name
         if not os.path.exists(self.save_foldername):

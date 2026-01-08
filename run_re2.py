@@ -9,13 +9,14 @@ from core.operator_runner import OperatorRunner
 from parameters import Parameters
 import gymnasium_robotics
 from core import mod_utils as utils, agent
+import csv
 
 
 import os
 
 gym.register_envs(gymnasium_robotics)
 
-cpu_num = 1
+cpu_num = 4
 os.environ["OMP_NUM_THREADS"] = str(cpu_num)
 os.environ["OPENBLAS_NUM_THREADS"] = str(cpu_num)
 os.environ["MKL_NUM_THREADS"] = str(cpu_num)
@@ -179,6 +180,9 @@ if __name__ == "__main__":
 
     next_save = parameters.next_save
     time_start = time.time()
+
+    header_written = False
+
     while agent.num_frames <= parameters.num_frames:
         stats = agent.train()
         best_train_fitness = stats["best_train_fitness"]
@@ -238,24 +242,31 @@ if __name__ == "__main__":
         new_fitness = stats["new_fitness"]
         best_reward = np.max([ddpg_reward, erl_score])
 
-        parameters.wandb.log(
-            {
-                "best_reward": best_reward,
-                "add_rewards": add_rewards,
-                "pvn_loss": pvn_loss,
-                "keep_c_loss": keep_c_loss,
-                "l1_before_after": l1_before_after,
-                "pre_loss": pre_loss,
-                "num_frames": agent.num_frames,
-                "num_games": agent.num_games,
-                "erl_score": erl_score,
-                "ddpg_reward": ddpg_reward,
-                "elite": elite,
-                "selected": selected,
-                "discarded": discarded,
-                "policy_gradient_loss": policy_gradient_loss,
-                "population_novelty": population_novelty,
-                "best_train_fitness": best_train_fitness,
-                "behaviour_cloning_loss": behaviour_cloning_loss,
-            }
-        )
+        to_write = {
+            "best_reward": best_reward,
+            "add_rewards": add_rewards,
+            "pvn_loss": pvn_loss,
+            "keep_c_loss": keep_c_loss,
+            "l1_before_after": l1_before_after,
+            "pre_loss": pre_loss,
+            "num_frames": agent.num_frames,
+            "num_games": agent.num_games,
+            "erl_score": erl_score,
+            "ddpg_reward": ddpg_reward,
+            "elite": elite,
+            "selected": selected,
+            "discarded": discarded,
+            "policy_gradient_loss": policy_gradient_loss,
+            "population_novelty": population_novelty,
+            "best_train_fitness": best_train_fitness,
+            "behaviour_cloning_loss": behaviour_cloning_loss,
+        }
+
+        with open(parameters.save_foldername + "/results.csv", "a+") as f:
+            writer = csv.DictWriter(f, to_write.keys())
+
+            if not header_written:
+                writer.writeheader()
+                header_written = True
+
+            writer.writerow(to_write)
