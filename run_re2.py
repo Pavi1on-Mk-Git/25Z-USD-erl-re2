@@ -1,20 +1,22 @@
-import numpy as np
-import time
+import argparse
+import csv
+import os
 import random
+import time
 
 import gymnasium as gym
+import gymnasium_robotics
+import humanoid_bench
+import numpy as np
 import torch
-import argparse
+
+from core import agent
+from core import mod_utils as utils
 from core.operator_runner import OperatorRunner
 from parameters import Parameters
-import gymnasium_robotics
-from core import mod_utils as utils, agent
-import csv
-
-
-import os
 
 gym.register_envs(gymnasium_robotics)
+gym.register_envs(humanoid_bench)
 
 cpu_num = 4
 os.environ["OMP_NUM_THREADS"] = str(cpu_num)
@@ -28,8 +30,7 @@ torch.set_num_threads(cpu_num)
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "-env",
-    help="Environment Choices: (Swimmer-v2) (HalfCheetah-v2) (Hopper-v2) "
-    + "(Walker2d-v2) (Ant-v2)",
+    help="Environment Choices: (Swimmer-v2) (HalfCheetah-v2) (Hopper-v2) " + "(Walker2d-v2) (Ant-v2)",
     required=True,
     type=str,
 )
@@ -54,38 +55,24 @@ parser.add_argument("-RL", help="Use rl", action="store_true")
 parser.add_argument("-detach_z", help="detach_z", action="store_true")
 parser.add_argument("-random_choose", help="Use random_choose", action="store_true")
 
-parser.add_argument(
-    "-per", help="Use Prioritised Experience Replay", action="store_true"
-)
+parser.add_argument("-per", help="Use Prioritised Experience Replay", action="store_true")
 parser.add_argument("-use_all", help="Use all", action="store_true")
 
 parser.add_argument("-intention", help="intention", action="store_true")
 
-parser.add_argument(
-    "-mut_mag", help="The magnitude of the mutation", type=float, default=0.05
-)
+parser.add_argument("-mut_mag", help="The magnitude of the mutation", type=float, default=0.05)
 parser.add_argument("-tau", help="tau", type=float, default=0.005)
 
-parser.add_argument(
-    "-prob_reset_and_sup", help="prob_reset_and_sup", type=float, default=0.05
-)
+parser.add_argument("-prob_reset_and_sup", help="prob_reset_and_sup", type=float, default=0.05)
 parser.add_argument("-frac", help="frac", type=float, default=0.1)
 
 
 parser.add_argument("-TD3_noise", help="tau", type=float, default=0.2)
-parser.add_argument(
-    "-mut_noise", help="Use a random mutation magnitude", action="store_true"
-)
+parser.add_argument("-mut_noise", help="Use a random mutation magnitude", action="store_true")
 parser.add_argument("-verbose_mut", help="Make mutations verbose", action="store_true")
-parser.add_argument(
-    "-verbose_crossover", help="Make crossovers verbose", action="store_true"
-)
-parser.add_argument(
-    "-logdir", help="Folder where to save results", type=str, required=True
-)
-parser.add_argument(
-    "-opstat", help="Store statistics for the variation operators", action="store_true"
-)
+parser.add_argument("-verbose_crossover", help="Make crossovers verbose", action="store_true")
+parser.add_argument("-logdir", help="Folder where to save results", type=str, required=True)
+parser.add_argument("-opstat", help="Store statistics for the variation operators", action="store_true")
 parser.add_argument(
     "-opstat_freq",
     help="Frequency (in generations) to store operator statistics",
@@ -150,14 +137,10 @@ np.random.seed(parameters.seed)
 random.seed(parameters.seed)
 
 tracker = utils.Tracker(parameters, ["erl"], "_score.csv")  # Initiate tracker
-frame_tracker = utils.Tracker(
-    parameters, ["frame_erl"], "_score.csv"
-)  # Initiate tracker
+frame_tracker = utils.Tracker(parameters, ["frame_erl"], "_score.csv")  # Initiate tracker
 time_tracker = utils.Tracker(parameters, ["time_erl"], "_score.csv")
 ddpg_tracker = utils.Tracker(parameters, ["ddpg"], "_score.csv")
-selection_tracker = utils.Tracker(
-    parameters, ["elite", "selected", "discarded"], "_selection.csv"
-)
+selection_tracker = utils.Tracker(parameters, ["elite", "selected", "discarded"], "_selection.csv")
 
 
 if __name__ == "__main__":
@@ -222,18 +205,9 @@ if __name__ == "__main__":
             "%.4f" % policy_gradient_loss,
         )
 
-        elite = (
-            agent.evolver.selection_stats["elite"]
-            / agent.evolver.selection_stats["total"]
-        )
-        selected = (
-            agent.evolver.selection_stats["selected"]
-            / agent.evolver.selection_stats["total"]
-        )
-        discarded = (
-            agent.evolver.selection_stats["discarded"]
-            / agent.evolver.selection_stats["total"]
-        )
+        elite = agent.evolver.selection_stats["elite"] / agent.evolver.selection_stats["total"]
+        selected = agent.evolver.selection_stats["selected"] / agent.evolver.selection_stats["total"]
+        discarded = agent.evolver.selection_stats["discarded"] / agent.evolver.selection_stats["total"]
 
         print()
 

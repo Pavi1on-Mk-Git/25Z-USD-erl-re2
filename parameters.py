@@ -1,6 +1,7 @@
-import pprint
-import torch
 import os
+import pprint
+
+import torch
 
 
 class Parameters:
@@ -24,16 +25,7 @@ class Parameters:
         self.num_frames = 1000000
 
         # Synchronization
-        if (
-            cla.env == "HalfCheetah-v2"
-            or cla.env == "Hopper-v2"
-            or cla.env == "Ant-v2"
-            or cla.env == "Walker2d-v2"
-            or cla.env == "Humanoid-v2"
-        ):
-            self.rl_to_ea_synch_period = 1
-        else:
-            self.rl_to_ea_synch_period = 10
+        self.rl_to_ea_synch_period = 1
 
         # Overwrite sync from command line if value is passed
         if cla.sync_period is not None:
