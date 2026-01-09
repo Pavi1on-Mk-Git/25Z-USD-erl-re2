@@ -13,6 +13,7 @@ RUN apt-get update \
        libosmesa6-dev \
        patchelf \
        libglib2.0-0 \
+       libglew-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sSL https://pdm-project.org/install.sh | bash
@@ -29,3 +30,4 @@ ENV LD_LIBRARY_PATH="/root/.mujoco/mujoco210/bin:"
 ENV MUJOCO_GL=osmesa
 
 RUN pdm install
+  
