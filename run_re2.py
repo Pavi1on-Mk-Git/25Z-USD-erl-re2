@@ -18,19 +18,11 @@ from parameters import Parameters
 gym.register_envs(gymnasium_robotics)
 gym.register_envs(humanoid_bench)
 
-cpu_num = 4
-os.environ["OMP_NUM_THREADS"] = str(cpu_num)
-os.environ["OPENBLAS_NUM_THREADS"] = str(cpu_num)
-os.environ["MKL_NUM_THREADS"] = str(cpu_num)
-os.environ["VECLIB_MAXIMUM_THREADS"] = str(cpu_num)
-os.environ["NUMEXPR_NUM_THREADS"] = str(cpu_num)
-torch.set_num_threads(cpu_num)
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "-env",
-    help="Environment Choices: (Swimmer-v2) (HalfCheetah-v2) (Hopper-v2) " + "(Walker2d-v2) (Ant-v2)",
+    help="Environment Choices: (Swimmer-v2) (HalfCheetah-v2) (Hopper-v2) (Walker2d-v2) (Ant-v2)",
     required=True,
     type=str,
 )
@@ -109,9 +101,18 @@ parser.add_argument("-actor_alpha", help="actor_alpha", type=float, default=1.0)
 parser.add_argument("-theta", help="theta", type=float, default=0.5)
 
 parser.add_argument("-gamma", help="gamma", type=float, default=0.99)
+parser.add_argument("-cpu_num", help="Number of cpu cores", type=int, default=1)
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 parameters = Parameters(parser)  # Inject the cla arguments in the parameters object
+
+cpu_num = parameters.cpu_num
+os.environ["OMP_NUM_THREADS"] = str(cpu_num)
+os.environ["OPENBLAS_NUM_THREADS"] = str(cpu_num)
+os.environ["MKL_NUM_THREADS"] = str(cpu_num)
+os.environ["VECLIB_MAXIMUM_THREADS"] = str(cpu_num)
+os.environ["NUMEXPR_NUM_THREADS"] = str(cpu_num)
+torch.set_num_threads(cpu_num)
 
 # Create Env
 # env = utils.NormalizedActions(gym.make(parameters.env_name))

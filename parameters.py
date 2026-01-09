@@ -152,6 +152,8 @@ class Parameters:
         if not os.path.exists(self.save_foldername):
             os.makedirs(self.save_foldername)
 
+        self.cpu_num = cla.cpu_num
+
     def write_params(self, stdout=True):
         # Dump all the hyper-parameters in a file.
         params = pprint.pformat(vars(self), indent=4)
