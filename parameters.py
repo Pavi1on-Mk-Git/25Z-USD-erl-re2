@@ -115,38 +115,38 @@ class Parameters:
             + str(self.time_steps)
             + "_theta_"
             + str(self.theta)
-            + "_eval_"
-            + str(self.num_evals)
-            + "_rs_prob_"
-            + str(self.prob_reset_and_sup)
+            # + "_eval_"
+            # + str(self.num_evals)
+            # + "_rs_prob_"
+            # + str(self.prob_reset_and_sup)
             + "_frac_p_"
             + str(self.frac)
-            + "_our_M_"
-            + str(self.OFF_TYPE)
-            + "_"
-            + str(self.elite_fraction)
-            + "_"
-            + str(self.rl_to_ea_synch_period)
-            + "_"
-            + str(self.pop_size)
-            + "_"
-            + str(self.EA_actor_alpha)
-            + "_"
-            + str(self.pr)
-            + "_noise_"
-            + str(self.TD3_noise)
-            + "_Pavn_detach_"
-            + str(self.detach_z)
-            + "_"
-            + str(self.actor_alpha)
-            + "_actorloss_MI_sa_s_"
-            + str(self.state_alpha)
+            # + "_our_M_"
+            # + str(self.OFF_TYPE)
+            # + "_"
+            # + str(self.elite_fraction)
+            # + "_"
+            # + str(self.rl_to_ea_synch_period)
+            # + "_"
+            # + str(self.pop_size)
+            # + "_"
+            # + str(self.EA_actor_alpha)
+            # + "_"
+            # + str(self.pr)
+            # + "_noise_"
+            # + str(self.TD3_noise)
+            # + "_Pavn_detach_"
+            # + str(self.detach_z)
+            # + "_"
+            # + str(self.actor_alpha)
+            # + "_actorloss_MI_sa_s_"
+            # + str(self.state_alpha)
             + "_random_K_"
             + str(self.K)
             + "_"
             + str(cla.env)
-            + "_"
-            + str(self.tau)
+            # + "_"
+            # + str(self.tau)
         )
 
         self.save_foldername = cla.logdir + "/" + self.name
