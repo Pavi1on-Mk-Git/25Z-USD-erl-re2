@@ -92,6 +92,7 @@ def prepare_subprocess_arguments(args: argparse.Namespace) -> list[list[str]]:
                 f"-cpu_num={args.num_cpu}",
             ]
         )
+    return process_args
 
 
 def run_process(arguments: list[str]):
