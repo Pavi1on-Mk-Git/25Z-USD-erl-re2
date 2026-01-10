@@ -237,7 +237,7 @@ if __name__ == "__main__":
             "behaviour_cloning_loss": behaviour_cloning_loss,
         }
 
-        with open(parameters.save_foldername + "/results.csv", "a+") as f:
+        with open(parameters.save_logfile, "a+") as f:
             writer = csv.DictWriter(f, to_write.keys())
 
             if not header_written:

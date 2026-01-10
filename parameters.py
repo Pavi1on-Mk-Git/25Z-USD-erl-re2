@@ -152,6 +152,10 @@ class Parameters:
         if not os.path.exists(self.save_foldername):
             os.makedirs(self.save_foldername)
 
+        self.save_logfile = self.save_foldername + "/results.csv"
+        if os.path.exists(self.save_logfile):
+            os.remove(self.save_logfile)
+
         self.cpu_num = cla.cpu_num
 
     def write_params(self, stdout=True):
@@ -160,5 +164,5 @@ class Parameters:
         if stdout:
             print(params)
 
-        with open(os.path.join(self.save_foldername, "info.txt"), "a") as f:
+        with open(os.path.join(self.save_foldername, "info.txt"), "w") as f:
             f.write(params)
