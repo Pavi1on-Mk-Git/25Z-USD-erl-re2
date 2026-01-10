@@ -76,7 +76,7 @@ def find_results_csv_path(id: ExperimentID):
             continue
 
         return log_dir / "results.csv"
-    raise ValueError(f"results file not found for ID: {id}")
+    raise FileNotFoundError(f"results file not found for ID: {id}")
 
 
 if __name__ == "__main__":
