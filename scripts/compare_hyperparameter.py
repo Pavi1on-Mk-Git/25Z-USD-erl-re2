@@ -26,8 +26,8 @@ def parse_args() -> argparse.Namespace:
             type=float,
             help=f"Value of {param} to use. Ignored if {param} is optimized.",
         )
-    parser.add_argument("--num_cpu", type=int, help="Number of CPUs to use per process.", default=1)
-    parser.add_argument("--max_processes", type=int, help="Number of processes to run concurrently.", default=1)
+    parser.add_argument("--num-cpu", type=int, help="Number of CPUs to use per process.", default=1)
+    parser.add_argument("--max-processes", type=int, help="Number of processes to run concurrently.", default=1)
 
     return parser.parse_args()
 
