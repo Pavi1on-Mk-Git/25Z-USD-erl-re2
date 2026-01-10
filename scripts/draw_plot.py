@@ -76,6 +76,7 @@ def find_results_csv_path(id: ExperimentID):
             continue
 
         return log_dir / "results.csv"
+    raise ValueError(f"results file not found for ID: {id}")
 
 
 if __name__ == "__main__":
@@ -83,7 +84,7 @@ if __name__ == "__main__":
         [
             ExperimentID(env="h1-walk-v0", theta=0.3, frac=0.2, time_steps=50, k=1),
             ExperimentID(env="h1-walk-v0", theta=0.5, frac=0.2, time_steps=50, k=1),
-            ExperimentID(env="h1-walk-v0", theta=0.7, frac=0.2, time_steps=50, k=1),
+            # ExperimentID(env="h1-walk-v0", theta=0.7, frac=0.2, time_steps=50, k=1),
             # ExperimentID(env="h1-walk-v0", theta=0.8, frac=0.2, time_steps=50, k=1),
         ],
         ["theta=0.3", "theta=0.5", "theta=0.7", "theta=0.8"],
