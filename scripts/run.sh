@@ -35,4 +35,3 @@ pdm run run_re2.py \
     -seed=1 \
     -logdir="./logs" \
     -cpu_num="$cpu_num"
-
