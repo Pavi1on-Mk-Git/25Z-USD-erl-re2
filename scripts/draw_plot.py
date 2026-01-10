@@ -6,6 +6,7 @@ from os import PathLike
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 from matplotlib import pyplot as plt
 
 
@@ -38,11 +39,32 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def draw_plot(experiment_ids: list[ExperimentID], legend_labels: list[str], title: str):
+def smoothen(num_frames: list[int], best_rewards: list[float], sigma: float | None) -> list[float]:
+    if sigma is None:
+        return best_rewards
+
+    num_frames = np.array(num_frames)
+    best_rewards = np.array(best_rewards)
+    rewards_smooth = np.zeros_like(best_rewards, dtype=float)
+
+    for i in range(len(num_frames)):
+        weights = np.exp(-0.5 * ((num_frames - num_frames[i]) / sigma) ** 2)
+        rewards_smooth[i] = np.sum(weights * best_rewards) / np.sum(weights)
+
+    return rewards_smooth
+
+
+def draw_plot(
+    experiment_ids: list[ExperimentID],
+    legend_labels: list[str],
+    title: str,
+    smoothing_sigma: float | None = None,
+):
     plt.figure(figsize=(10, 6))
     for experiment_id, label in zip(experiment_ids, legend_labels):
         results_csv_path = find_results_csv_path(experiment_id)
         num_frames, best_rewards = load_results_csv(results_csv_path)
+        best_rewards = smoothen(num_frames, best_rewards, smoothing_sigma)
         plt.plot(num_frames, best_rewards, linestyle="-", label=label)
 
     plt.xlabel("Time Steps (1e6)")
@@ -89,4 +111,5 @@ if __name__ == "__main__":
         ],
         ["theta=0.3", "theta=0.5", "theta=0.7", "theta=0.8"],
         "Performance comparison for different theta values",
+        smoothing_sigma=1500,
     )
