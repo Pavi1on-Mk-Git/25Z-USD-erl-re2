@@ -1,6 +1,6 @@
+import csv
 import json
 import os
-import pprint
 
 import torch
 
@@ -155,9 +155,21 @@ class Parameters:
 
         self.save_logfile = self.save_foldername + "/results.csv"
         if os.path.exists(self.save_logfile):
+            if self.is_results_csv_complete(self.save_logfile):
+                raise ValueError(f"Not removing complete logs file: {self.save_logfile}")
             os.remove(self.save_logfile)
 
         self.cpu_num = cla.cpu_num
+
+    @staticmethod
+    def is_results_csv_complete(results_csv_path: str) -> bool:
+        with open(results_csv_path, "r") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                if int(row["num_frames"]) > 1e6:
+                    return True
+
+        return False
 
     @staticmethod
     def _is_json_serializable(value):
