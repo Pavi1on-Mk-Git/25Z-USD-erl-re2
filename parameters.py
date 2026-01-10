@@ -1,3 +1,4 @@
+import json
 import os
 import pprint
 
@@ -158,11 +159,19 @@ class Parameters:
 
         self.cpu_num = cla.cpu_num
 
+    @staticmethod
+    def _is_json_serializable(value):
+        try:
+            json.dumps(value)
+            return True
+        except Exception:
+            return False
+
     def write_params(self, stdout=True):
         # Dump all the hyper-parameters in a file.
-        params = pprint.pformat(vars(self), indent=4)
+        params = {key: value if self._is_json_serializable(value) else str(value) for key, value in vars(self).items()}
         if stdout:
             print(params)
 
         with open(os.path.join(self.save_foldername, "info.txt"), "w") as f:
-            f.write(params)
+            json.dump(params, f, indent=4)
