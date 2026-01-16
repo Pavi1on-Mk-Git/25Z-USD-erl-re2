@@ -64,6 +64,7 @@ def find_results_csv_path(id: ExperimentID):
             or info["frac"] != id.frac
             or info["time_steps"] != id.time_steps
             or info["K"] != id.k
+            or info["seed"] != id.seed
         ):
             continue
 
