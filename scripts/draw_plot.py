@@ -19,6 +19,7 @@ from matplotlib import pyplot as plt
 def parse_args() -> argparse.Namespace:
     parser = prepare_parser_for_param_args()
     parser.add_argument("--smoothing-sigma", type=float, help="Sigma for Gaussian smoothing of the plot.", default=None)
+    parser.add_argument("--output-file", type=str, help="File to write plto to. Default: display.", default=None)
 
     args = parser.parse_args()
     validate_param_args(args)
@@ -35,8 +36,9 @@ def draw_plot(
     for experiment_id, label in zip(experiment_ids, legend_labels):
         results_csv_path = find_results_csv_path(experiment_id)
         num_frames, best_rewards = load_results_csv(results_csv_path)
+        auc = np.trapezoid(best_rewards, num_frames)
         best_rewards = smoothen(num_frames, best_rewards, smoothing_sigma)
-        plt.plot(num_frames, best_rewards, linestyle="-", label=label)
+        plt.plot(num_frames, best_rewards, linestyle="-", label=f"{label} (AUC={auc:.3e})")
 
     plt.xlabel("Time Steps (1e6)")
     plt.ylabel("Undiscounted Return")
@@ -47,7 +49,10 @@ def draw_plot(
     plt.grid(True)
     plt.legend()
 
-    plt.show()
+    if args.output_file is not None:
+        plt.savefig(args.output_file)
+    else:
+        plt.show()
 
 
 def find_results_csv_path(id: ExperimentID):
