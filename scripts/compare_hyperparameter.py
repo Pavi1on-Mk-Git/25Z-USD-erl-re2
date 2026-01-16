@@ -29,7 +29,7 @@ def prepare_parser_for_param_args() -> argparse.ArgumentParser:
         "--optimize",
         choices=list(HYPERPARAMETERS_GRID.keys()),
         help="Which hyperparameter to optimize.",
-        required=True,
+        default=None,
     )
 
     for param in HYPERPARAMETERS_GRID.keys():
@@ -67,6 +67,17 @@ class ExperimentID:
 
 
 def prepare_experiment_ids(args: argparse.Namespace) -> list[ExperimentID]:
+    if args.optimize is None:
+        return [
+            ExperimentID(
+                env=args.env,
+                theta=args.set_theta,
+                frac=args.set_frac,
+                time_steps=args.set_time_steps,
+                k=args.set_k,
+                seed=args.set_seed,
+            )
+        ]
     experiment_ids: list[ExperimentID] = []
     for value in HYPERPARAMETERS_GRID[args.optimize]:
         theta = args.set_theta or HYPERPARAMETERS_GRID["theta"][0]

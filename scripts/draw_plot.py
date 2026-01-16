@@ -38,7 +38,8 @@ def draw_plot(
         num_frames, best_rewards = load_results_csv(results_csv_path)
         auc = np.trapezoid(best_rewards, num_frames)
         best_rewards = smoothen(num_frames, best_rewards, smoothing_sigma)
-        plt.plot(num_frames, best_rewards, linestyle="-", label=f"{label} (AUC={auc:.3e})")
+        label = f"{label} (AUC={auc:.3e})" if label is not None else None
+        plt.plot(num_frames, best_rewards, linestyle="-", label=label)
 
     plt.xlabel("Time Steps (1e6)")
     plt.ylabel("Undiscounted Return")
@@ -47,7 +48,9 @@ def draw_plot(
     plt.xlim(0, 1_000_000)
 
     plt.grid(True)
-    plt.legend()
+
+    if any(legend_labels):
+        plt.legend()
 
     if args.output_file is not None:
         plt.savefig(args.output_file, bbox_inches="tight")
@@ -107,6 +110,8 @@ def smoothen(num_frames: list[int], best_rewards: list[float], sigma: float | No
 
 
 def prepare_legend(optimized_param: str):
+    if args.optimize is None:
+        return [None]
     values = HYPERPARAMETERS_GRID[optimized_param]
     return [f"{optimized_param}={value}" for value in values]
 
@@ -115,9 +120,10 @@ if __name__ == "__main__":
     args = parse_args()
     experiment_ids = prepare_experiment_ids(args)
     legend = prepare_legend(args.optimize)
+    title = f"Performance comparison for different {args.optimize} values" if args.optimize is not None else args.env
     draw_plot(
         experiment_ids,
         legend,
-        f"Performance comparison for different {args.optimize} values",
+        title,
         smoothing_sigma=args.smoothing_sigma,
     )
