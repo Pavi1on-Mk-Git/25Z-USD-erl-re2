@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-#TODO: add Ant experiment command
+scripts/run.sh Ant-v2 0.5 0.7 200 1
 
 pdm run scripts/compare_hyperparameter.py --env h1-walk-v0 --optimize theta --num-cpu 4 --max-processes 2
 pdm run scripts/compare_hyperparameter.py --env h1-walk-v0 --optimize frac --num-cpu 4 --max-processes 2 \
