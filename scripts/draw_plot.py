@@ -1,7 +1,6 @@
 import argparse
 import csv
 import json
-from dataclasses import dataclass
 from os import PathLike
 from pathlib import Path
 from typing import Any
@@ -24,19 +23,6 @@ def parse_args() -> argparse.Namespace:
     args = parser.parse_args()
     validate_param_args(args)
     return args
-
-
-def load_results_csv(results_csv_path: PathLike) -> tuple[list[str], list[str]]:
-    best_rewards = []
-    num_frames = []
-
-    with open(results_csv_path, "r") as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            best_rewards.append(float(row["best_reward"]))
-            num_frames.append(int(row["num_frames"]))
-
-    return num_frames, best_rewards
 
 
 def draw_plot(
@@ -64,21 +50,6 @@ def draw_plot(
     plt.show()
 
 
-def smoothen(num_frames: list[int], best_rewards: list[float], sigma: float | None) -> list[float]:
-    if sigma is None:
-        return best_rewards
-
-    num_frames = np.array(num_frames)
-    best_rewards = np.array(best_rewards)
-    rewards_smooth = np.zeros_like(best_rewards, dtype=float)
-
-    for i in range(len(num_frames)):
-        weights = np.exp(-0.5 * ((num_frames - num_frames[i]) / sigma) ** 2)
-        rewards_smooth[i] = np.sum(weights * best_rewards) / np.sum(weights)
-
-    return rewards_smooth
-
-
 def find_results_csv_path(id: ExperimentID):
     for log_dir in Path("logs").iterdir():
         info = get_info(log_dir)
@@ -99,6 +70,34 @@ def get_info(dir_path: Path) -> dict[str, Any]:
     info_path = dir_path / "info.txt"
     with open(info_path, "r") as fh:
         return json.load(fh)
+
+
+def load_results_csv(results_csv_path: PathLike) -> tuple[list[str], list[str]]:
+    best_rewards = []
+    num_frames = []
+
+    with open(results_csv_path, "r") as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            best_rewards.append(float(row["best_reward"]))
+            num_frames.append(int(row["num_frames"]))
+
+    return num_frames, best_rewards
+
+
+def smoothen(num_frames: list[int], best_rewards: list[float], sigma: float | None) -> list[float]:
+    if sigma is None:
+        return best_rewards
+
+    num_frames = np.array(num_frames)
+    best_rewards = np.array(best_rewards)
+    rewards_smooth = np.zeros_like(best_rewards, dtype=float)
+
+    for i in range(len(num_frames)):
+        weights = np.exp(-0.5 * ((num_frames - num_frames[i]) / sigma) ** 2)
+        rewards_smooth[i] = np.sum(weights * best_rewards) / np.sum(weights)
+
+    return rewards_smooth
 
 
 def prepare_legend(optimized_param: str):

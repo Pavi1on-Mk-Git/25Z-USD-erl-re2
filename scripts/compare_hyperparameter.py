@@ -12,6 +12,16 @@ HYPERPARAMETERS_GRID = {
 }
 
 
+def parse_args() -> argparse.Namespace:
+    parser = prepare_parser_for_param_args()
+    parser.add_argument("--num-cpu", type=int, help="Number of CPUs to use per process.", default=1)
+    parser.add_argument("--max-processes", type=int, help="Number of processes to run concurrently.", default=1)
+
+    args = parser.parse_args()
+    validate_param_args(args)
+    return args
+
+
 def prepare_parser_for_param_args() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("--env", type=str, help="Which task to use.", required=True)
@@ -44,16 +54,6 @@ def validate_param_args(args: argparse.Namespace):
             raise ValueError(
                 f"Only hyperparameters before the optimized one must be set explicitly (error for {hyperparameter})."
             )
-
-
-def parse_args() -> argparse.Namespace:
-    parser = prepare_parser_for_param_args()
-    parser.add_argument("--num-cpu", type=int, help="Number of CPUs to use per process.", default=1)
-    parser.add_argument("--max-processes", type=int, help="Number of processes to run concurrently.", default=1)
-
-    args = parser.parse_args()
-    validate_param_args(args)
-    return args
 
 
 @dataclass
@@ -91,6 +91,22 @@ def prepare_experiment_ids(args: argparse.Namespace) -> list[ExperimentID]:
     return experiment_ids
 
 
+def execute_processes(experiment_ids: list[ExperimentID], args: argparse.Namespace):
+    with ThreadPoolExecutor(max_workers=args.max_processes) as executor:
+        futures = [executor.submit(run_process, id, args) for id in experiment_ids]
+
+        for future in as_completed(futures):
+            arguments, return_code = future.result()
+            print(f"Process {' '.join(arguments)} finished with exit code {return_code}")
+
+
+def run_process(id: ExperimentID, args: argparse.ArgumentParser):
+    arguments = experiment_id_to_subprocess_args(id, args)
+    p = subprocess.Popen(arguments, stdout=None, stderr=None)
+    p.wait()
+    return arguments, p.returncode
+
+
 def experiment_id_to_subprocess_args(id: ExperimentID, args: argparse.Namespace) -> list[str]:
     return [
         "pdm",
@@ -118,22 +134,6 @@ def experiment_id_to_subprocess_args(id: ExperimentID, args: argparse.Namespace)
         "-logdir=./logs",
         f"-cpu_num={args.num_cpu}",
     ]
-
-
-def run_process(id: ExperimentID, args: argparse.ArgumentParser):
-    arguments = experiment_id_to_subprocess_args(id, args)
-    p = subprocess.Popen(arguments, stdout=None, stderr=None)
-    p.wait()
-    return arguments, p.returncode
-
-
-def execute_processes(experiment_ids: list[ExperimentID], args: argparse.Namespace):
-    with ThreadPoolExecutor(max_workers=args.max_processes) as executor:
-        futures = [executor.submit(run_process, id, args) for id in experiment_ids]
-
-        for future in as_completed(futures):
-            arguments, return_code = future.result()
-            print(f"Process {' '.join(arguments)} finished with exit code {return_code}")
 
 
 if __name__ == "__main__":
