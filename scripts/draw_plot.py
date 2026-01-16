@@ -32,7 +32,7 @@ def draw_plot(
     title: str,
     smoothing_sigma: float | None = None,
 ):
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(6, 4))
     for experiment_id, label in zip(experiment_ids, legend_labels):
         results_csv_path = find_results_csv_path(experiment_id)
         num_frames, best_rewards = load_results_csv(results_csv_path)
@@ -50,7 +50,7 @@ def draw_plot(
     plt.legend()
 
     if args.output_file is not None:
-        plt.savefig(args.output_file)
+        plt.savefig(args.output_file, bbox_inches="tight")
     else:
         plt.show()
 
