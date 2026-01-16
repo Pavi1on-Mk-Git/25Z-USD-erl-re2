@@ -13,7 +13,7 @@ import torch
 from core import agent
 from core import mod_utils as utils
 from core.operator_runner import OperatorRunner
-from parameters import Parameters
+from parameters import DEFAULT_SEED, Parameters
 
 gym.register_envs(gymnasium_robotics)
 gym.register_envs(humanoid_bench)
@@ -26,7 +26,7 @@ parser.add_argument(
     required=True,
     type=str,
 )
-parser.add_argument("-seed", help="Random seed to be used", type=int, default=7)
+parser.add_argument("-seed", help="Random seed to be used", type=int, default=DEFAULT_SEED)
 parser.add_argument("-pr", help="pr", type=int, default=128)
 parser.add_argument("-pop_size", help="pop_size", type=int, default=10)
 

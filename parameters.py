@@ -4,6 +4,8 @@ import os
 
 import torch
 
+DEFAULT_SEED = 1
+
 
 class Parameters:
     def __init__(self, cla, init=True):
@@ -110,44 +112,9 @@ class Parameters:
         self.theta = cla.theta
         self.time_steps = cla.time_steps
         self.init_steps = 10000
-        self.name = (
-            "Steps_"
-            + str(self.time_steps)
-            + "_theta_"
-            + str(self.theta)
-            # + "_eval_"
-            # + str(self.num_evals)
-            # + "_rs_prob_"
-            # + str(self.prob_reset_and_sup)
-            + "_frac_p_"
-            + str(self.frac)
-            # + "_our_M_"
-            # + str(self.OFF_TYPE)
-            # + "_"
-            # + str(self.elite_fraction)
-            # + "_"
-            # + str(self.rl_to_ea_synch_period)
-            # + "_"
-            # + str(self.pop_size)
-            # + "_"
-            # + str(self.EA_actor_alpha)
-            # + "_"
-            # + str(self.pr)
-            # + "_noise_"
-            # + str(self.TD3_noise)
-            # + "_Pavn_detach_"
-            # + str(self.detach_z)
-            # + "_"
-            # + str(self.actor_alpha)
-            # + "_actorloss_MI_sa_s_"
-            # + str(self.state_alpha)
-            + "_random_K_"
-            + str(self.K)
-            + "_"
-            + str(cla.env)
-            # + "_"
-            # + str(self.tau)
-        )
+        self.name = f"Steps_{self.time_steps}_theta_{self.theta}_frac_p_{self.frac}_random_K_{self.K}_{cla.env}"
+        if self.seed != DEFAULT_SEED:
+            self.name += f"_seed_{self.seed}"
 
         self.save_foldername = cla.logdir + "/" + self.name
         if not os.path.exists(self.save_foldername):

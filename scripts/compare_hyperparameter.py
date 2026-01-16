@@ -23,7 +23,7 @@ def parse_args() -> argparse.Namespace:
     for param in HYPERPARAMETERS_GRID.keys():
         parser.add_argument(
             "--set-" + param.replace("_", "-").lower(),
-            type=float,
+            type=type(HYPERPARAMETERS_GRID[param][0]),
             help=f"Value of {param} to use. Ignored if {param} is optimized.",
         )
     parser.add_argument("--num-cpu", type=int, help="Number of CPUs to use per process.", default=1)

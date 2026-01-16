@@ -17,6 +17,7 @@ class ExperimentID:
     frac: float
     time_steps: int
     k: int
+    seed: int = 1
 
 
 def load_results_csv(results_csv_path: PathLike) -> tuple[list[str], list[str]]:
@@ -104,12 +105,10 @@ def find_results_csv_path(id: ExperimentID):
 if __name__ == "__main__":
     draw_plot(
         [
-            ExperimentID(env="h1-walk-v0", theta=0.3, frac=0.2, time_steps=50, k=1),
-            ExperimentID(env="h1-walk-v0", theta=0.5, frac=0.2, time_steps=50, k=1),
-            # ExperimentID(env="h1-walk-v0", theta=0.7, frac=0.2, time_steps=50, k=1),
-            # ExperimentID(env="h1-walk-v0", theta=0.8, frac=0.2, time_steps=50, k=1),
+            ExperimentID(env="h1-walk-v0", theta=0.8, frac=0.2, time_steps=50, k=1),
+            ExperimentID(env="h1-walk-v0", theta=0.8, frac=0.2, time_steps=50, k=3),
         ],
-        ["theta=0.3", "theta=0.5", "theta=0.7", "theta=0.8"],
-        "Performance comparison for different theta values",
+        ["k=1", "k=3"],
+        "Performance comparison for different K values",
         smoothing_sigma=1500,
     )
