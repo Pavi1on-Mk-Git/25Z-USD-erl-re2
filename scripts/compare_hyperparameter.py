@@ -141,7 +141,7 @@ def experiment_id_to_subprocess_args(id: ExperimentID, args: argparse.Namespace)
         "-actor_alpha=1.0",
         "-EA_actor_alpha=1.0",
         "-tau=0.005",
-        "-seed=1",
+        f"-seed={id.seed}",
         "-logdir=./logs",
         f"-cpu_num={args.num_cpu}",
     ]
