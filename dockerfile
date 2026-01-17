@@ -2,8 +2,6 @@ FROM debian:bookworm-slim
 
 WORKDIR /usd
 
-COPY . .
-
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        bash \
@@ -16,7 +14,7 @@ RUN apt-get update \
        libglew-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -sSL https://pdm-project.org/install.sh | bash
+RUN curl -sSL https://pdm-project.org/install.sh | bash -s -- -v 2.26.3
 
 RUN mkdir -p /root/.mujoco
 
@@ -29,5 +27,6 @@ ENV LD_LIBRARY_PATH="/root/.mujoco/mujoco210/bin:"
 
 ENV MUJOCO_GL=osmesa
 
+COPY . .
+
 RUN pdm install
-  

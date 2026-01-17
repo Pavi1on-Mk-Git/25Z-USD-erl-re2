@@ -21,7 +21,7 @@ mujoco = "<=3.2.0"
 
 [[tool.pdm.source]]
 name = "private"
-url = "https://download.pytorch.org/whl/cu124"
+url = "https://download.pytorch.org/whl/cpu"
 include_packages = ["torch", "torchvision", "torchaudio", "xformers"]
 exclude_packages = ["*"]
 

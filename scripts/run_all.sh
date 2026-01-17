@@ -4,7 +4,7 @@ set -e
 PROC_COUNT=$(nproc)
 HALF_PROC_COUNT=$(("$PROC_COUNT" / 2))
 
-scripts/run.sh Ant-v2 0.5 0.7 200 1 "$PROC_COUNT"
+bash scripts/run.sh Ant-v2 0.5 0.7 200 1 "$PROC_COUNT"
 
 pdm run scripts/compare_hyperparameter.py --env h1-walk-v0 --optimize theta --num-cpu "$HALF_PROC_COUNT" --max-processes 2
 pdm run scripts/compare_hyperparameter.py --env h1-walk-v0 --optimize frac --num-cpu "$HALF_PROC_COUNT" --max-processes 2 \
