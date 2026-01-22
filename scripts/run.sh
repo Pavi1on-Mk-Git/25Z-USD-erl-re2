@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [[ $# -lt 5 ]]; then
-    echo "Script requires at least 5 parameters: name theta frac time_steps K [cpu_num]"
+    echo "Script requires at least 5 parameters: name theta frac time_steps K [seed] [cpu_num]"
 fi
 
 name="$1"
@@ -10,7 +10,8 @@ theta="$2"
 frac="$3"
 time_steps="$4"
 K="$5"
-cpu_num="${6:-1}"
+seed="${6:-1}"
+cpu_num="${7:-1}"
 
 echo "[$name] Running with: $theta $frac $time_steps $K"
 pdm run run_re2.py \
@@ -32,6 +33,6 @@ pdm run run_re2.py \
     -actor_alpha=1.0 \
     -EA_actor_alpha=1.0 \
     -tau=0.005 \
-    -seed=1 \
+    -seed="$seed" \
     -logdir="./logs" \
     -cpu_num="$cpu_num"
