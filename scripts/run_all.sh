@@ -25,3 +25,13 @@ pdm run scripts/compare_hyperparameter.py --env h1-hurdle-v0 --optimize K --num-
     --set-theta 0.7 --set-frac 0.2 --set-time-steps 50
 pdm run scripts/compare_hyperparameter.py --env h1-hurdle-v0 --optimize seed --num-cpu "$HALF_PROC_COUNT" --max-processes 2 \
     --set-theta 0.7 --set-frac 0.2 --set-time-steps 50 --set-k 1
+
+pdm run scripts/compare_hyperparameter.py --env h1hand-cube-v0 --optimize theta --num-cpu "$PROC_COUNT" --max-processes 1
+pdm run scripts/compare_hyperparameter.py --env h1hand-cube-v0 --optimize frac --num-cpu "$PROC_COUNT" --max-processes 1 \
+    --set-theta 0.3
+pdm run scripts/compare_hyperparameter.py --env h1hand-cube-v0 --optimize time_steps --num-cpu "$PROC_COUNT" --max-processes 1 \
+    --set-theta 0.3 --set-frac 0.2
+pdm run scripts/compare_hyperparameter.py --env h1hand-cube-v0 --optimize K --num-cpu "$PROC_COUNT" --max-processes 1 \
+    --set-theta 0.3 --set-frac 0.2 --set-time-steps 50
+pdm run scripts/compare_hyperparameter.py --env h1hand-cube-v0 --optimize seed --num-cpu "$PROC_COUNT" --max-processes 1 \
+    --set-theta 0.3 --set-frac 0.2 --set-time-steps 50 --set-k 1
